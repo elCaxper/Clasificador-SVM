@@ -140,8 +140,6 @@ class Ui_MainWindow(object):
         self.lb_gamma.setText('Gamma')
         self.kernel_slected = 0
 
-        self._dialog=None
-
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -243,12 +241,6 @@ class Ui_MainWindow(object):
                                                    self.expected[0],self.predicted[0]),
                                 )
 
-
-    def show_dialogo(self):
-        if self._dialog is None:
-            self._dialog = QtGui.QDialog(self)
-            self._dialog.resize(200, 100)
-        self._dialog.show()
 
     def cb_kernel_change(self, string):
         self.kernel_slected = string
