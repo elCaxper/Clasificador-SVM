@@ -7,7 +7,7 @@ from os.path import isfile, join
 import os.path
 import numpy as np
 
-from sklearn import datasets, svm, metrics
+from sklearn import svm, metrics
 from sklearn.externals import joblib
 
 class Ui_MainWindow(object):
@@ -252,14 +252,17 @@ class Ui_MainWindow(object):
             self.cb_degree.setDisabled(False)
             self.lb_gamma.setText('coef0')
             self.lineEdit.setDisabled(False)
+            self.lineEdit.setText(str(0.0))
         elif string == 2:
             self.cb_degree.setDisabled(True)
             self.lineEdit.setDisabled(False)
             self.lb_gamma.setText('Gamma')
+            self.lineEdit.setText(str(0.0001))
         elif string == 3:
             self.cb_degree.setDisabled(True)
             self.lineEdit.setDisabled(False)
             self.lb_gamma.setText('coef0')
+            self.lineEdit.setText(str(0.0))
 
     def entrenar(self):
 
