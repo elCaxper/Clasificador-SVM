@@ -1,21 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ventana_principal.ui'
-#
-# Created: Sun Jan 14 02:17:28 2018
-#      by: pyside-uic 0.2.15 running on PySide 1.2.4
-#
-# WARNING! All changes made in this file will be lost!
-
 from PySide import QtCore, QtGui
 import pandas as pd
-import glob
 from os import listdir
 from os.path import isfile, join
 import os.path
 import numpy as np
-import matplotlib.pyplot as plt
-from time import sleep
 
 from sklearn import datasets, svm, metrics
 from sklearn.externals import joblib
@@ -174,13 +164,17 @@ class Ui_MainWindow(object):
 
                 self.num_labels = len(set(onlyfiles))
 
-                # Use the selected directory...
                 print('selected_directory:', self.selected_directory)
                 print('num_dat_files:', num_dat_files)
                 print('num_labels:', self.num_labels)
-                
-                for i in range(self.num_labels, self.num_labels + 4):
-                    self.cb_degree.addItem(str(i))
+
+                self.cb_degree.clear()
+                if self.num_labels + 4 < 10:
+                    for i in range(self.num_labels, self.num_labels + 4):
+                        self.cb_degree.addItem(str(i))
+                else:
+                    for i in range(5, 10):
+                        self.cb_degree.addItem(str(i))
 
                 l = [pd.read_table(join(self.selected_directory, filename), delim_whitespace=True,
                                    names=('X', 'Y', 'Value'))
@@ -296,8 +290,6 @@ class Ui_MainWindow(object):
         self.btn_clasificar_folder.setDisabled(False)
 
         print("Entrenado")
-
-        # self.my_mess.done(True)
 
 
     def cb_degree_change(self, string):
