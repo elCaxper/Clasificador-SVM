@@ -45,6 +45,11 @@ class Ui_MainWindow(object):
         self.btn_clasificar = QtGui.QPushButton(self.centralwidget)
         self.btn_clasificar.setObjectName("btn_clasificar")
         self.verticalLayout_2.addWidget(self.btn_clasificar)
+
+        self.btn_clasificar_folder = QtGui.QPushButton(self.centralwidget)
+        self.btn_clasificar_folder.setObjectName("btn_clasificar_folder")
+        self.verticalLayout_2.addWidget(self.btn_clasificar_folder)
+
         self.btn_detalles = QtGui.QPushButton(self.centralwidget)
         self.btn_detalles.setObjectName("btn_detalles")
         self.verticalLayout_2.addWidget(self.btn_detalles)
@@ -108,12 +113,14 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuAyuda.menuAction())
 
         self.btn_clasificar.setDisabled(True)
+        self.btn_clasificar_folder.setDisabled(True)
 
         self.btn_detalles.setDisabled(True)
         self.btn_detalles.clicked.connect(self.resultados)
         self.btn_entrenar.setDisabled(True)
         self.btn_entrenar.clicked.connect(self.entrenar)
         self.btn_clasificar.clicked.connect(self.onInputFileButtonClicked)
+        self.btn_clasificar_folder.clicked.connect(self.selectDirectory_folder)
         self.actionAbrir.triggered.connect(self.selectDirectory)
 
         self.actionGuardar_SVM.triggered.connect(self.guardar_svm)
@@ -171,7 +178,7 @@ class Ui_MainWindow(object):
                 print('selected_directory:', self.selected_directory)
                 print('num_dat_files:', num_dat_files)
                 print('num_labels:', self.num_labels)
-
+                
                 for i in range(self.num_labels, self.num_labels + 4):
                     self.cb_degree.addItem(str(i))
 
@@ -185,6 +192,51 @@ class Ui_MainWindow(object):
                 print('Tamanio', self.data.size)
 
                 self.btn_entrenar.setDisabled(False)
+
+    def selectDirectory_folder(self):
+        self.selected_directory_test = QtGui.QFileDialog.getExistingDirectory()
+
+        if self.selected_directory_test == '':
+            print('directorio incorrecto incorrecto')
+
+        else:
+
+            num_dat_files = [f.split('.')[1] for f in sorted(listdir(self.selected_directory_test)) if
+                             isfile(join(self.selected_directory_test, f)) and f.endswith(".dat")].count('dat')
+
+            if num_dat_files > 0:
+
+                onlyfiles = [f.split('1')[0] for f in sorted(listdir(self.selected_directory_test)) if
+                             isfile(join(self.selected_directory_test, f)) and f.endswith(".dat")]
+                target = np.array(onlyfiles)
+
+                num_labels = len(set(onlyfiles))
+
+                # Use the selected directory...
+                print('selected_directory:', self.selected_directory_test)
+                print('num_dat_files:', num_dat_files)
+                print('num_labels:', num_labels)
+
+
+                l = [pd.read_table(join(self.selected_directory_test, filename), delim_whitespace=True,
+                                   names=('X', 'Y', 'Value'))
+                     ['Value']
+                     for filename in sorted(listdir(self.selected_directory_test)) if
+                     (isfile(join(self.selected_directory_test, filename)) and filename.endswith('.dat'))]
+                # df = pd.concat(l, axis=0)
+                data = np.array(l)
+                print('Tamanio', data.size)
+
+                self.expected = target[:]
+                self.predicted = self.classifier.predict(data[:])
+                print("Classification report for classifier %s:\n%s\n"
+                      % (self.classifier, metrics.classification_report(self.expected, self.predicted)))
+
+                print('expected', self.expected)
+                print('predicted', self.predicted)
+
+                self.btn_detalles.setDisabled(False)
+
 
     def about(self):
         QtGui.QMessageBox.about(self, "Acerda de",
@@ -233,7 +285,7 @@ class Ui_MainWindow(object):
         if self.cb_kernel.currentIndex() == 1:
             _coef0 = float(self.lineEdit.text())
             self.classifier = svm.SVC(coef0=_coef0, degree=_degree,
-                                      kernel=_kernel,cache_size=7000)
+                                      kernel=_kernel)
         else:
             _gamma = float(self.lineEdit.text())
             self.classifier = svm.SVC(gamma=_gamma, kernel=_kernel)
@@ -241,6 +293,7 @@ class Ui_MainWindow(object):
         self.classifier.fit(self.data[:round(len(self.data))], self.target[:round(len(self.data))])
 
         self.btn_clasificar.setDisabled(False)
+        self.btn_clasificar_folder.setDisabled(False)
 
         print("Entrenado")
 
@@ -285,6 +338,7 @@ class Ui_MainWindow(object):
         if filename!='':
             self.classifier = joblib.load(filename)
             self.btn_clasificar.setDisabled(False)
+            self.btn_clasificar_folder.setDisabled(False)
 
     def guardar_svm(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, 'Dialog Title', './',
@@ -301,6 +355,10 @@ class Ui_MainWindow(object):
             QtGui.QApplication.translate("MainWindow", "Entrenar", None, QtGui.QApplication.UnicodeUTF8))
         self.btn_clasificar.setText(
             QtGui.QApplication.translate("MainWindow", "Clasificar", None, QtGui.QApplication.UnicodeUTF8))
+
+        self.btn_clasificar_folder.setText(
+            QtGui.QApplication.translate("MainWindow", "Clasificar Carpeta", None, QtGui.QApplication.UnicodeUTF8))
+
         self.btn_detalles.setText(
             QtGui.QApplication.translate("MainWindow", "Ver detalles", None, QtGui.QApplication.UnicodeUTF8))
         self.lb_kernel.setText(
