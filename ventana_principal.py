@@ -248,6 +248,7 @@ class Ui_MainWindow(object):
             self.cb_degree.setDisabled(True)
             self.lineEdit.setDisabled(True)
             self.lb_gamma.setText('Gamma')
+            self.lineEdit.setText(str(0.0001))
         elif string == 1:
             self.cb_degree.setDisabled(False)
             self.lb_gamma.setText('coef0')
@@ -267,11 +268,11 @@ class Ui_MainWindow(object):
     def entrenar(self):
 
         _kernel = self._lista_kernels[self.cb_kernel.currentIndex()]
-        _degree = self.degree_slected + self.num_labels
+        _degree = self.degree_slected# + self.num_labels
 
         print('kernel', _kernel)
         print('degree', _degree)
-        if self.cb_kernel.currentIndex() == 1:
+        if self.cb_kernel.currentIndex() == 1 or self.cb_kernel.currentIndex() == 3:
             _coef0 = float(self.lineEdit.text())
             self.classifier = svm.SVC(coef0=_coef0, degree=_degree,
                                       kernel=_kernel)
@@ -288,7 +289,12 @@ class Ui_MainWindow(object):
 
 
     def cb_degree_change(self, string):
-        self.degree_slected = int(string)
+        if self.cb_degree.currentText() != '':
+            self.degree_slected = int(self.cb_degree.currentText())
+        else:
+            self.degree_slected = 1;
+
+
 
     def onInputFileButtonClicked(self):
         filename, filter = QtGui.QFileDialog.getOpenFileName(parent=self, caption='Open file', dir='.',
